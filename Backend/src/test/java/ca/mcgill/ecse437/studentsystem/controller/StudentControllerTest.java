@@ -1,82 +1,47 @@
 package ca.mcgill.ecse437.studentsystem.controller;
 
-import ca.mcgill.ecse437.studentsystem.model.Student;
-import ca.mcgill.ecse437.studentsystem.service.StudentServiceImpl;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.skyscreamer.jsonassert.JSONAssert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.ResultActions;
 
-import static org.junit.jupiter.api.Assertions.*;
+import ca.mcgill.ecse437.studentsystem.repository.StudentRepository;
+import ca.mcgill.ecse437.studentsystem.service.StudentService;
 
-@RunWith(SpringRunner.class)
-@WebMvcTest(value = StudentController.class)
-@WithMockUser
-class StudentControllerTest {
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-    @Autowired
-    private MockMvc mockMvc;
+@SpringBootTest(classes = StudentControllerTest.class)
+@AutoConfigureMockMvc
+public class StudentControllerTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(StudentController.class);
 
-    @MockBean
-    private StudentServiceImpl studentService;
+  @Autowired
+  private MockMvc mockMvc;
 
-    private String CONTROLLER_ENDPOINT = "/student";
-    private Integer mockStudentId = 1;
-    private String mockStudentName = "Aman";
-    private String mockStudentAddress = "India";
-    private Student mockStudent = new Student(mockStudentId, "Aman", "India");
-    private String mockStudentJson =
-            "{\"id\":" + mockStudentId + ",\"name\":" + mockStudentName + ",\"address\":" + mockStudentAddress +"}";
+  @MockBean
+  private StudentService studentService;
 
-    @BeforeEach
-    void setUp() {
-    }
+  @MockBean
+  private StudentRepository studentRepository;
 
-    @AfterEach
-    void tearDown() {
-    }
+  @Test
+  public void listAll() throws Exception {
+    final ResultActions resultActions = this.mockMvc.perform(get("/student//getAll")).andExpect(status().isOk());
 
-    @Test
-    void add() {
-    }
+    resultActions.andExpect(status().isOk());
 
-    @Test
-    void getAllStudents() {
-    }
+    MvcResult result = resultActions.andReturn();
+    String contentAsString = result.getResponse().getContentAsString();
 
-    @Test
-    void get() throws Exception {
-        Mockito.when(studentService.get(mockStudentId)).thenReturn(mockStudent);
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .get(CONTROLLER_ENDPOINT + "/" + mockStudentId).accept(MediaType.APPLICATION_JSON);
-        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-        String expected = "{id:" + mockStudentId + ",name:" + mockStudentName + ",address:" + mockStudentAddress + "}";
-        JSONAssert.assertEquals(expected, result.getResponse().getContentAsString(), false);
-    }
+    LOGGER.info("Here is the content: " + contentAsString);
 
-    @Test
-    void put() {
-    }
+  }
 
-    @Test
-    void delete() throws Exception {
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .delete(CONTROLLER_ENDPOINT + "/" + mockStudentId).accept(MediaType.TEXT_PLAIN);
-        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-        String expected = "Deleted Student with id " + mockStudentId;
-        Assertions.assertEquals(result.getResponse().getContentAsString(), expected);
-    }
 }
