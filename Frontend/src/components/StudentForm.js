@@ -25,9 +25,29 @@ export default function StudentForm() {
     const [name, setName] = useState('')
     const [address, setAddress] = useState('')
     const [students, setStudents] = useState(studentsTestData)
+    const [errors, setErrors] = useState({ name: false, address: false });
+    const [errorMessages, setErrorMessages] = useState({ name: '', address: '' });
+
+    const validateInputs = () => {
+        const isNameEmpty = name.length === 0;
+        const isAddressEmpty = address.length === 0;
+
+        setErrors({
+            name: isNameEmpty,
+            address: isAddressEmpty
+        });
+        setErrorMessages({
+            name: isNameEmpty ? "Name cannot be empty" : "",
+            address: isAddressEmpty ? "Address cannot be empty" : ""
+        });
+
+        return !(isNameEmpty || isAddressEmpty);
+    }
 
     const handleClick = (e) => {
         e.preventDefault()
+        if (!validateInputs()) return;
+
         const student = { name, address }
         console.log(student)
         fetch("http://localhost:8080/student/add", {
@@ -38,6 +58,14 @@ export default function StudentForm() {
             console.log("New Student added")
             setName('');
             setAddress('');
+            setErrors({
+                name: false,
+                address: false
+            });
+            setErrorMessages({
+                name: "",
+                address: ""
+            });
         })
     }
 
@@ -54,23 +82,27 @@ export default function StudentForm() {
             <Paper elevation={3} style={paperStyle}>
                 <Typography variant='h4'>Add Student</Typography>
                 <form noValidate autoComplete="off">
-                    <TextField id="outlined-basic" label="Student Name" variant="outlined" fullWidth
+                    <TextField id="outlined-required" label="Student Name" variant="outlined" fullWidth required
+                        error={errors.name}
+                        helperText={errorMessages.name}
                         sx={{ mt: 3 }}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                     />
-                    <TextField id="outlined-basic" label="Student Adress" variant="outlined" fullWidth
+                    <TextField id="outlined-required" label="Student Adress" variant="outlined" fullWidth required
+                        error={errors.address}
+                        helperText={errorMessages.address}
                         sx={{ mt: 3 }}
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
                     />
-                    <Button sx={{ mt: 2, width: 1/4 }} variant="contained" color="secondary" onClick={handleClick}>
+                    <Button sx={{ mt: 2, width: 1 / 4 }} variant="contained" color="secondary" onClick={handleClick}>
                         Submit
                     </Button>
                 </form>
             </Paper>
 
-            <Typography variant='h3' sx={{fontWeight: 'bold'}}>Students</Typography>
+            <Typography variant='h3' sx={{ fontWeight: 'bold' }}>Students</Typography>
             <Paper elevation={3} style={paperStyle}>
                 {students.map(student => (
                     <Paper elevation={4} style={{ margin: "10px", padding: "15px", textAlign: "left" }} key={student.id}>
