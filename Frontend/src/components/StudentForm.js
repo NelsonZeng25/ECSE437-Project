@@ -2,31 +2,38 @@ import React, { useEffect, useState } from 'react';
 import { Container, Paper, Button, TextField } from '@mui/material';
 import { Typography } from '@mui/material';
 
-const studentsTestData = [
-    {
-        id: 1,
-        name: "John Johnson",
-        address: "Test Street"
-    },
-    {
-        id: 2,
-        name: "Bro Broson",
-        address: "Test Street 2"
-    },
-    {
-        id: 3,
-        name: "Test Tester",
-        address: "Test Street 3"
-    }
-]
-
 export default function StudentForm() {
     const paperStyle = { padding: '50px 20px', width: 600, margin: "20px auto" }
     const [name, setName] = useState('')
     const [address, setAddress] = useState('')
-    const [students, setStudents] = useState(studentsTestData)
+    const [students, setStudents] = useState([])
     const [errors, setErrors] = useState({ name: false, address: false });
     const [errorMessages, setErrorMessages] = useState({ name: '', address: '' });
+
+    useEffect(() => {
+        fetchStudents();
+    }, [])
+
+    const fetchStudents = () => {
+        fetch("http://localhost:8080/student/getAll")
+            .then(res => res.json())
+            .then((result) => {
+                setStudents(result);
+            })
+    }
+
+    const resetState = () => {
+        setName('');
+        setAddress('');
+        setErrors({
+            name: false,
+            address: false
+        });
+        setErrorMessages({
+            name: "",
+            address: ""
+        });
+    }
 
     const validateInputs = () => {
         const isNameEmpty = name.length === 0;
@@ -56,26 +63,10 @@ export default function StudentForm() {
             body: JSON.stringify(student)
         }).then(() => {
             console.log("New Student added")
-            setName('');
-            setAddress('');
-            setErrors({
-                name: false,
-                address: false
-            });
-            setErrorMessages({
-                name: "",
-                address: ""
-            });
+            fetchStudents();
+            resetState();
         })
     }
-
-    useEffect(() => {
-        fetch("http://localhost:8080/student/getAll")
-            .then(res => res.json())
-            .then((result) => {
-                setStudents(result);
-            })
-    }, [])
 
     return (
         <Container>
@@ -89,7 +80,7 @@ export default function StudentForm() {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                     />
-                    <TextField id="outlined-required" label="Student Adress" variant="outlined" fullWidth required
+                    <TextField id="outlined-required" label="Student Address" variant="outlined" fullWidth required
                         error={errors.address}
                         helperText={errorMessages.address}
                         sx={{ mt: 3 }}
