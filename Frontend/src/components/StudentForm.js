@@ -3,24 +3,24 @@ import { Container, Paper, Button, TextField } from '@mui/material';
 import { Typography } from '@mui/material';
 
 export default function StudentForm() {
-    const paperStyle = { padding: '50px 20px', width: 600, margin: "20px auto" }
-    const [name, setName] = useState('')
-    const [address, setAddress] = useState('')
-    const [students, setStudents] = useState([])
+    const paperStyle = { padding: '50px 20px', width: 600, margin: "20px auto" };
+    const [name, setName] = useState('');
+    const [address, setAddress] = useState('');
+    const [students, setStudents] = useState([]);
     const [errors, setErrors] = useState({ name: false, address: false });
     const [errorMessages, setErrorMessages] = useState({ name: '', address: '' });
 
     useEffect(() => {
         fetchStudents();
-    }, [])
+    }, []);
 
     const fetchStudents = () => {
         fetch("http://localhost:8080/student/getAll")
             .then(res => res.json())
             .then((result) => {
                 setStudents(result);
-            })
-    }
+            });
+    };
 
     const resetState = () => {
         setName('');
@@ -33,7 +33,7 @@ export default function StudentForm() {
             name: "",
             address: ""
         });
-    }
+    };
 
     const validateInputs = () => {
         const isNameEmpty = name.length === 0;
@@ -49,38 +49,40 @@ export default function StudentForm() {
         });
 
         return !(isNameEmpty || isAddressEmpty);
-    }
+    };
 
     const handleClick = (e) => {
-        e.preventDefault()
+        e.preventDefault();
         if (!validateInputs()) return;
 
-        const student = { name, address }
-        console.log(student)
+        const student = { name, address };
+        console.log(student);
         fetch("http://localhost:8080/student/add", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(student)
         }).then(() => {
-            console.log("New Student added")
+            console.log("New Student added");
             fetchStudents();
             resetState();
-        })
-    }
+        });
+    };
 
     return (
         <Container>
             <Paper elevation={3} style={paperStyle}>
                 <Typography variant='h4'>Add Student</Typography>
                 <form noValidate autoComplete="off">
-                    <TextField id="outlined-required" label="Student Name" variant="outlined" fullWidth required
+                    <TextField id="outlined-required" label="Student Name" aria-label="name-input" variant="outlined" fullWidth required
+                        placeholder='John doe'
                         error={errors.name}
                         helperText={errorMessages.name}
                         sx={{ mt: 3 }}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                     />
-                    <TextField id="outlined-required" label="Student Address" variant="outlined" fullWidth required
+                    <TextField id="outlined-required" label="Student Address" aria-label="address-input" variant="outlined" fullWidth required
+                        placeholder='845 Sherbrooke St W, Montreal, Quebec H3A 0G4'
                         error={errors.address}
                         helperText={errorMessages.address}
                         sx={{ mt: 3 }}
@@ -104,5 +106,5 @@ export default function StudentForm() {
                 ))}
             </Paper>
         </Container>
-    )
+    );
 }
