@@ -25,3 +25,4 @@ Once all the dependencies are installed, you can run `npm start` to run the appl
 ## Application
 ![image](https://user-images.githubusercontent.com/43350396/205521458-7c94ec63-56d4-48fe-b555-d67da5fdef6a.png)
 
+This is a workflow example
